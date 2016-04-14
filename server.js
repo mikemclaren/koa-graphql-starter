@@ -3,7 +3,11 @@ require('babel-polyfill');
 
 import Koa from 'koa';
 import Router from 'koa-router';
+import convert from 'koa-convert';
+import graphqlHTTP from 'koa-graphql';
 import bodyParser from 'koa-bodyparser';
+
+import Schema from './schema/Schema';
 
 const app = new Koa();
 const router = new Router();
@@ -31,6 +35,15 @@ router.get('/', async (ctx, next) => {
   ctx.status = 200;
   await next();
 });
+
+router.get('/query', convert(graphqlHTTP((request, context) => ({
+  schema: Schema,
+  graphiql: true
+}))));
+
+router.post('/query', convert(graphqlHTTP((request, context) => ({
+  schema: Schema
+}))));
 
 app.use(router.routes());
 
